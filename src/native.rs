@@ -1,7 +1,7 @@
 use super::*;
 use crate::{gl46 as native_gl, version::Version};
 use std::ffi::CStr;
-use std::{collections::HashSet, ffi::CString, num::NonZeroU32};
+use std::{collections::HashSet, ffi::CString, num::NonZeroU32, num::NonZeroU64};
 
 #[derive(Default)]
 struct Constants {
@@ -87,7 +87,7 @@ impl Context {
     /// This can be useful when a texture is created outside of glow (e.g. OpenXR surface) but glow
     /// still needs access to it for rendering.
     pub unsafe fn create_texture_from_gl_name(gl_name: native_gl::GLuint) -> NativeTexture {
-        NativeTexture(non_zero_gl_name(gl_name))
+        NativeTexture(non_zero_u32_gl_name(gl_name))
     }
 
     /// Creates a framebuffer from an external GL name.
@@ -95,7 +95,7 @@ impl Context {
     /// This can be useful when a framebuffer is created outside of glow (e.g: via `surfman` or another
     /// crate that supports sharing of buffers between GL contexts), but glow needs to set it as a target.
     pub unsafe fn create_framebuffer_from_gl_name(gl_name: native_gl::GLuint) -> NativeFramebuffer {
-        NativeFramebuffer(non_zero_gl_name(gl_name))
+        NativeFramebuffer(non_zero_u32_gl_name(gl_name))
     }
 }
 
@@ -105,8 +105,12 @@ impl std::fmt::Debug for Context {
     }
 }
 
-fn non_zero_gl_name(value: native_gl::GLuint) -> NonZeroU32 {
+fn non_zero_u32_gl_name(value: native_gl::GLuint) -> NonZeroU32 {
     NonZeroU32::new(value as u32).expect("expected non-zero GL name")
+}
+
+fn non_zero_u64_gl_name(value: native_gl::GLuint64) -> NonZeroU64 {
+    NonZeroU64::new(value as u64).expect("expected non-zero GL name")
 }
 
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -123,6 +127,9 @@ pub struct NativeVertexArray(pub NonZeroU32);
 
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct NativeTexture(pub NonZeroU32);
+
+#[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct NativeTextureHandle(pub NonZeroU64);
 
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct NativeSampler(pub NonZeroU32);
@@ -151,6 +158,7 @@ impl HasContext for Context {
     type Buffer = NativeBuffer;
     type VertexArray = NativeVertexArray;
     type Texture = NativeTexture;
+    type TextureHandle = NativeTextureHandle;
     type Sampler = NativeSampler;
     type Fence = NativeFence;
     type Framebuffer = NativeFramebuffer;
@@ -175,7 +183,7 @@ impl HasContext for Context {
         let gl = &self.raw;
         let mut name = 0;
         gl.GenFramebuffers(1, &mut name);
-        Ok(NativeFramebuffer(non_zero_gl_name(name)))
+        Ok(NativeFramebuffer(non_zero_u32_gl_name(name)))
     }
 
     unsafe fn is_framebuffer(&self, framebuffer: Self::Framebuffer) -> bool {
@@ -187,14 +195,14 @@ impl HasContext for Context {
         let gl = &self.raw;
         let mut name = 0;
         gl.GenQueries(1, &mut name);
-        Ok(NativeQuery(non_zero_gl_name(name)))
+        Ok(NativeQuery(non_zero_u32_gl_name(name)))
     }
 
     unsafe fn create_renderbuffer(&self) -> Result<Self::Renderbuffer, String> {
         let gl = &self.raw;
         let mut name = 0;
         gl.GenRenderbuffers(1, &mut name);
-        Ok(NativeRenderbuffer(non_zero_gl_name(name)))
+        Ok(NativeRenderbuffer(non_zero_u32_gl_name(name)))
     }
 
     unsafe fn is_renderbuffer(&self, renderbuffer: Self::Renderbuffer) -> bool {
@@ -206,12 +214,12 @@ impl HasContext for Context {
         let gl = &self.raw;
         let mut name = 0;
         gl.GenSamplers(1, &mut name);
-        Ok(NativeSampler(non_zero_gl_name(name)))
+        Ok(NativeSampler(non_zero_u32_gl_name(name)))
     }
 
     unsafe fn create_shader(&self, shader_type: u32) -> Result<Self::Shader, String> {
         let gl = &self.raw;
-        Ok(NativeShader(non_zero_gl_name(
+        Ok(NativeShader(non_zero_u32_gl_name(
             gl.CreateShader(shader_type as u32),
         )))
     }
@@ -225,16 +233,16 @@ impl HasContext for Context {
         let gl = &self.raw;
         let mut name = 0;
         gl.GenTextures(1, &mut name);
-        Ok(NativeTexture(non_zero_gl_name(name)))
+        Ok(NativeTexture(non_zero_u32_gl_name(name)))
     }
 
     unsafe fn create_named_texture(&self, target: u32) -> Result<Self::Texture, String> {
         let gl = &self.raw;
         let mut name = 0;
         gl.CreateTextures(target, 1, &mut name);
-        Ok(NativeTexture(non_zero_gl_name(name)))
+        Ok(NativeTexture(non_zero_u32_gl_name(name)))
     }
-    
+
     unsafe fn is_texture(&self, texture: Self::Texture) -> bool {
         let gl = &self.raw;
         gl.IsTexture(texture.0.get()) != 0
@@ -310,7 +318,7 @@ impl HasContext for Context {
 
     unsafe fn create_program(&self) -> Result<Self::Program, String> {
         let gl = &self.raw;
-        Ok(NativeProgram(non_zero_gl_name(gl.CreateProgram())))
+        Ok(NativeProgram(non_zero_u32_gl_name(gl.CreateProgram())))
     }
 
     unsafe fn is_program(&self, program: Self::Program) -> bool {
@@ -413,16 +421,16 @@ impl HasContext for Context {
         let gl = &self.raw;
         let mut buffer = 0;
         gl.GenBuffers(1, &mut buffer);
-        Ok(NativeBuffer(non_zero_gl_name(buffer)))
+        Ok(NativeBuffer(non_zero_u32_gl_name(buffer)))
     }
 
     unsafe fn create_named_buffer(&self) -> Result<Self::Buffer, String> {
         let gl = &self.raw;
         let mut buffer = 0;
         gl.CreateBuffers(1, &mut buffer);
-        Ok(NativeBuffer(non_zero_gl_name(buffer)))
+        Ok(NativeBuffer(non_zero_u32_gl_name(buffer)))
     }
-    
+
     unsafe fn is_buffer(&self, buffer: Self::Buffer) -> bool {
         let gl = &self.raw;
         gl.IsBuffer(buffer.0.get()) != 0
@@ -505,7 +513,7 @@ impl HasContext for Context {
         let gl = &self.raw;
         let mut vertex_array = 0;
         gl.GenVertexArrays(1, &mut vertex_array);
-        Ok(NativeVertexArray(non_zero_gl_name(vertex_array)))
+        Ok(NativeVertexArray(non_zero_u32_gl_name(vertex_array)))
     }
 
     unsafe fn delete_vertex_array(&self, vertex_array: Self::VertexArray) {
@@ -601,7 +609,7 @@ impl HasContext for Context {
             usage,
         );
     }
-    
+
     unsafe fn buffer_sub_data_u8_slice(&self, target: u32, offset: i32, src_data: &[u8]) {
         let gl = &self.raw;
         gl.BufferSubData(
@@ -729,7 +737,7 @@ impl HasContext for Context {
             src_depth,
         );
     }
-    
+
     unsafe fn copy_tex_image_2d(
         &self,
         target: u32,
@@ -1185,6 +1193,23 @@ impl HasContext for Context {
         value
     }
 
+    unsafe fn get_texture_handle(&self, texture: Self::Texture) -> Self::TextureHandle {
+        let gl = &self.raw;
+        NativeTextureHandle(non_zero_u64_gl_name(
+            gl.GetTextureHandleARB(texture.0.get()),
+        ))
+    }
+
+    unsafe fn make_texture_handle_non_resident(&self, texture_handle: TextureHandle) {
+        let gl = &self.raw;
+        gl.MakeTextureHandleNonResidentARB(texture_handle.0.get())
+    }
+
+    unsafe fn make_texture_handle_resident(&self, texture_handle: TextureHandle) {
+        let gl = &self.raw;
+        gl.MakeTextureHandleResidentARB(texture_handle.0.get())
+    }
+
     unsafe fn get_buffer_parameter_i32(&self, target: u32, parameter: u32) -> i32 {
         let gl = &self.raw;
         let mut value = 0;
@@ -1624,7 +1649,7 @@ impl HasContext for Context {
             depth,
         );
     }
-    
+
     unsafe fn get_uniform_i32(
         &self,
         program: Self::Program,
@@ -2028,7 +2053,7 @@ impl HasContext for Context {
         let gl = &self.raw;
         gl.TextureParameteri(texture.0.get(), parameter, value);
     }
-    
+
     unsafe fn tex_parameter_f32_slice(&self, target: u32, parameter: u32, values: &[f32]) {
         let gl = &self.raw;
         gl.TexParameterfv(target, parameter, values.as_ptr());
@@ -2160,7 +2185,7 @@ impl HasContext for Context {
             },
         );
     }
-    
+
     unsafe fn compressed_tex_sub_image_3d(
         &self,
         target: u32,
@@ -2271,7 +2296,7 @@ impl HasContext for Context {
         let gl = &self.raw;
         gl.VertexArrayElementBuffer(vao.0.get(), buffer.map(|b| b.0.get()).unwrap_or(0));
     }
-    
+
     unsafe fn vertex_array_vertex_buffer(
         &self,
         vao: Self::VertexArray,
@@ -2829,7 +2854,7 @@ impl HasContext for Context {
         let gl = &self.raw;
         let mut name = 0;
         gl.GenTransformFeedbacks(1, &mut name);
-        Ok(NativeTransformFeedback(non_zero_gl_name(name)))
+        Ok(NativeTransformFeedback(non_zero_u32_gl_name(name)))
     }
 
     unsafe fn delete_transform_feedback(&self, transform_feedback: Self::TransformFeedback) {
