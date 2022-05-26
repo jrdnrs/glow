@@ -420,6 +420,42 @@ pub trait HasContext {
 
     unsafe fn draw_elements_indirect_offset(&self, mode: u32, element_type: u32, offset: i32);
 
+    unsafe fn multi_draw_arrays(&self, mode: u32, first: &[i32], count: &[i32]);
+
+    unsafe fn multi_draw_arrays_indirect_offset(
+        &self,
+        mode: u32,
+        offset: i32,
+        draw_count: i32,
+        stride: i32,
+    );
+
+    unsafe fn multi_draw_elements(
+        &self,
+        mode: u32,
+        counts: &[i32],
+        element_type: u32,
+        offsets: &[i32],
+    );
+
+    unsafe fn multi_draw_elements_base_vertex(
+        &self,
+        mode: u32,
+        counts: &[i32],
+        element_type: u32,
+        offsets: &[i32],
+        base_vertices: &[i32],
+    );
+
+    unsafe fn multi_draw_elements_indirect_offset(
+        &self,
+        mode: u32,
+        element_type: u32,
+        offset: i32,
+        draw_count: i32,
+        stride: i32,
+    );
+
     unsafe fn enable(&self, parameter: u32);
 
     unsafe fn is_enabled(&self, parameter: u32) -> bool;

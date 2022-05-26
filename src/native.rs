@@ -974,6 +974,82 @@ impl HasContext for Context {
         gl.DrawElementsIndirect(mode, element_type, offset as *const std::ffi::c_void);
     }
 
+    unsafe fn multi_draw_arrays(&self, mode: u32, first: &[i32], count: &[i32]) {
+        let gl = &self.raw;
+
+        gl.MultiDrawArrays(
+            mode,
+            first.as_ptr(),
+            count.as_ptr(),
+            first.len().min(count.len()) as i32,
+        );
+    }
+
+    unsafe fn multi_draw_arrays_indirect_offset(
+        &self,
+        mode: u32,
+        offset: i32,
+        draw_count: i32,
+        stride: i32,
+    ) {
+        let gl = &self.raw;
+        gl.MultiDrawArraysIndirect(mode, offset as *const std::ffi::c_void, draw_count, stride);
+    }
+
+    unsafe fn multi_draw_elements(
+        &self,
+        mode: u32,
+        count: &[i32],
+        element_type: u32,
+        offset: &[i32],
+    ) {
+        let gl = &self.raw;
+        gl.MultiDrawElements(
+            mode,
+            count.as_ptr(),
+            element_type,
+            offset.as_ptr() as *const *const std::ffi::c_void,
+            count.len().min(offset.len()) as i32,
+        );
+    }
+
+    unsafe fn multi_draw_elements_base_vertex(
+        &self,
+        mode: u32,
+        count: &[i32],
+        element_type: u32,
+        offset: &[i32],
+        base_vertex: &[i32],
+    ) {
+        let gl = &self.raw;
+        gl.MultiDrawElementsBaseVertex(
+            mode,
+            count.as_ptr(),
+            element_type,
+            offset.as_ptr() as *const *const std::ffi::c_void,
+            count.len().min(offset.len()).min(base_vertex.len()) as i32,
+            base_vertex.as_ptr(),
+        );
+    }
+
+    unsafe fn multi_draw_elements_indirect_offset(
+        &self,
+        mode: u32,
+        element_type: u32,
+        offset: i32,
+        draw_count: i32,
+        stride: i32,
+    ) {
+        let gl = &self.raw;
+        gl.MultiDrawElementsIndirect(
+            mode,
+            element_type,
+            offset as *const std::ffi::c_void,
+            draw_count,
+            stride,
+        );
+    }
+
     unsafe fn enable(&self, parameter: u32) {
         let gl = &self.raw;
         gl.Enable(parameter);
