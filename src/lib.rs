@@ -786,9 +786,28 @@ pub trait HasContext {
         height: i32,
     );
 
+    unsafe fn texture_storage_2d(
+        &self,
+        texture: Self::Texture,
+        levels: i32,
+        internal_format: u32,
+        width: i32,
+        height: i32,
+    );
+
     unsafe fn tex_storage_2d_multisample(
         &self,
         target: u32,
+        samples: i32,
+        internal_format: u32,
+        width: i32,
+        height: i32,
+        fixed_sample_locations: bool,
+    );
+
+    unsafe fn texture_storage_2d_multisample(
+        &self,
+        texture: Self::Texture,
         samples: i32,
         internal_format: u32,
         width: i32,

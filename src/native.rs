@@ -1731,6 +1731,18 @@ impl HasContext for Context {
         gl.TexStorage2D(target, levels, internal_format, width, height);
     }
 
+    unsafe fn texture_storage_2d(
+        &self,
+        texture: Self::Texture,
+        levels: i32,
+        internal_format: u32,
+        width: i32,
+        height: i32,
+    ) {
+        let gl = &self.raw;
+        gl.TextureStorage2D(texture.0.get(), levels, internal_format, width, height);
+    }
+
     unsafe fn tex_storage_2d_multisample(
         &self,
         target: u32,
@@ -1750,6 +1762,27 @@ impl HasContext for Context {
             if fixed_sample_locations { 1 } else { 0 },
         );
     }
+
+    unsafe fn texture_storage_2d_multisample(
+        &self,
+        texture: Self::Texture,
+        samples: i32,
+        internal_format: u32,
+        width: i32,
+        height: i32,
+        fixed_sample_locations: bool,
+    ) {
+        let gl = &self.raw;
+        gl.TextureStorage2DMultisample(
+            texture.0.get(),
+            samples,
+            internal_format,
+            width,
+            height,
+            if fixed_sample_locations { 1 } else { 0 },
+        );
+    }
+
 
     unsafe fn tex_storage_3d(
         &self,
