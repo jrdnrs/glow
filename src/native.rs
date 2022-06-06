@@ -1783,7 +1783,6 @@ impl HasContext for Context {
         );
     }
 
-
     unsafe fn tex_storage_3d(
         &self,
         target: u32,
@@ -2276,6 +2275,35 @@ impl HasContext for Context {
         );
     }
 
+    unsafe fn texture_sub_image_2d(
+        &self,
+        texture: Self::Texture,
+        level: i32,
+        x_offset: i32,
+        y_offset: i32,
+        width: i32,
+        height: i32,
+        format: u32,
+        ty: u32,
+        pixels: PixelUnpackData,
+    ) {
+        let gl = &self.raw;
+        gl.TextureSubImage2D(
+            texture.0.get(),
+            level,
+            x_offset,
+            y_offset,
+            width,
+            height,
+            format,
+            ty,
+            match pixels {
+                PixelUnpackData::BufferOffset(offset) => offset as *const std::ffi::c_void,
+                PixelUnpackData::Slice(data) => data.as_ptr() as *const std::ffi::c_void,
+            },
+        );
+    }
+
     unsafe fn compressed_tex_sub_image_2d(
         &self,
         target: u32,
@@ -2300,6 +2328,41 @@ impl HasContext for Context {
 
         gl.CompressedTexSubImage2D(
             target, level, x_offset, y_offset, width, height, format, image_size, data,
+        );
+    }
+
+    unsafe fn compressed_texture_sub_image_2d(
+        &self,
+        texture: Self::Texture,
+        level: i32,
+        x_offset: i32,
+        y_offset: i32,
+        width: i32,
+        height: i32,
+        format: u32,
+        pixels: CompressedPixelUnpackData,
+    ) {
+        let gl = &self.raw;
+        let (data, image_size) = match pixels {
+            CompressedPixelUnpackData::BufferRange(ref range) => (
+                range.start as *const std::ffi::c_void,
+                (range.end - range.start) as i32,
+            ),
+            CompressedPixelUnpackData::Slice(data) => {
+                (data.as_ptr() as *const std::ffi::c_void, data.len() as i32)
+            }
+        };
+
+        gl.CompressedTextureSubImage2D(
+            texture.0.get(),
+            level,
+            x_offset,
+            y_offset,
+            width,
+            height,
+            format,
+            image_size,
+            data,
         );
     }
 

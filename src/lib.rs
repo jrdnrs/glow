@@ -1039,9 +1039,34 @@ pub trait HasContext {
         pixels: PixelUnpackData,
     );
 
+    unsafe fn texture_sub_image_2d(
+        &self,
+        texture: Self::Texture,
+        level: i32,
+        x_offset: i32,
+        y_offset: i32,
+        width: i32,
+        height: i32,
+        format: u32,
+        ty: u32,
+        pixels: PixelUnpackData,
+    );
+
     unsafe fn compressed_tex_sub_image_2d(
         &self,
         target: u32,
+        level: i32,
+        x_offset: i32,
+        y_offset: i32,
+        width: i32,
+        height: i32,
+        format: u32,
+        pixels: CompressedPixelUnpackData,
+    );
+
+    unsafe fn compressed_texture_sub_image_2d(
+        &self,
+        texture: Self::Texture,
         level: i32,
         x_offset: i32,
         y_offset: i32,
