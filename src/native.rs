@@ -509,6 +509,38 @@ impl HasContext for Context {
         );
     }
 
+    unsafe fn blit_named_framebuffer(
+        &self,
+        read_framebuffer: Self::Framebuffer,
+        draw_framebuffer: Self::Framebuffer,
+        src_x0: i32,
+        src_y0: i32,
+        src_x1: i32,
+        src_y1: i32,
+        dst_x0: i32,
+        dst_y0: i32,
+        dst_x1: i32,
+        dst_y1: i32,
+        mask: u32,
+        filter: u32,
+    ) {
+        let gl = &self.raw;
+        gl.BlitNamedFramebuffer(
+            read_framebuffer.0.get(),
+            draw_framebuffer.0.get(),
+            src_x0,
+            src_y0,
+            src_x1,
+            src_y1,
+            dst_x0,
+            dst_y0,
+            dst_x1,
+            dst_y1,
+            mask,
+            filter,
+        );
+    }
+
     unsafe fn create_vertex_array(&self) -> Result<Self::VertexArray, String> {
         let gl = &self.raw;
         let mut vertex_array = 0;
@@ -641,9 +673,31 @@ impl HasContext for Context {
         }
     }
 
+    unsafe fn named_buffer_storage(
+        &self,
+        buffer: Self::Buffer,
+        size: i32,
+        data: Option<&[u8]>,
+        flags: u32,
+    ) {
+        let gl = &self.raw;
+        let size = size as isize;
+        let data = data.map(|p| p.as_ptr()).unwrap_or(std::ptr::null()) as *const std::ffi::c_void;
+        gl.NamedBufferStorage(buffer.0.get(), size, data, flags);
+    }
+
     unsafe fn check_framebuffer_status(&self, target: u32) -> u32 {
         let gl = &self.raw;
         gl.CheckFramebufferStatus(target)
+    }
+
+    unsafe fn check_named_framebuffer_status(
+        &self,
+        framebuffer: Self::Framebuffer,
+        target: u32,
+    ) -> u32 {
+        let gl = &self.raw;
+        gl.CheckNamedFramebufferStatus(framebuffer.0.get(), target)
     }
 
     unsafe fn clear_buffer_i32_slice(&self, target: u32, draw_buffer: u32, values: &[i32]) {
@@ -1174,6 +1228,86 @@ impl HasContext for Context {
             level,
             layer,
         );
+    }
+
+    unsafe fn named_framebuffer_draw_buffer(
+        &self,
+        framebuffer: Self::Framebuffer,
+        color_buffer: u32,
+    ) {
+        let gl = &self.raw;
+        gl.NamedFramebufferDrawBuffer(framebuffer.0.get(), color_buffer)
+    }
+
+    unsafe fn named_framebuffer_read_buffer(&self, framebuffer: Self::Framebuffer, source: u32) {
+        let gl = &self.raw;
+        gl.NamedFramebufferReadBuffer(framebuffer.0.get(), source)
+    }
+
+    unsafe fn named_framebuffer_parameter_i32(
+        &self,
+        framebuffer: Self::Framebuffer,
+        parameter_name: u32,
+        value: i32,
+    ) {
+        let gl = &self.raw;
+        gl.NamedFramebufferParameteri(framebuffer.0.get(), parameter_name, value)
+    }
+
+    unsafe fn named_framebuffer_renderbuffer(
+        &self,
+        framebuffer: Self::Framebuffer,
+        attachment: u32,
+        renderbuffer_target: u32,
+        renderbuffer: self::Renderbuffer,
+    ) {
+        let gl = &self.raw;
+        gl.NamedFramebufferRenderbuffer(
+            framebuffer.0.get(),
+            attachment,
+            renderbuffer_target,
+            renderbuffer.0.get(),
+        )
+    }
+
+    unsafe fn named_framebuffer_texture(
+        &self,
+        framebuffer: Self::Framebuffer,
+        attachment: u32,
+        texture: Self::Texture,
+        level: i32,
+    ) {
+        let gl = &self.raw;
+        gl.NamedFramebufferTexture(framebuffer.0.get(), attachment, texture.0.get(), level)
+    }
+
+    unsafe fn named_renderbuffer_storage(
+        &self,
+        renderbuffer: self::Renderbuffer,
+        internal_format: u32,
+        width: i32,
+        height: i32,
+    ) {
+        let gl = &self.raw;
+        gl.NamedRenderbufferStorage(renderbuffer.0.get(), internal_format, width, height)
+    }
+
+    unsafe fn named_renderbuffer_storage_multisample(
+        &self,
+        renderbuffer: self::Renderbuffer,
+        samples: i32,
+        internal_format: u32,
+        width: i32,
+        height: i32,
+    ) {
+        let gl = &self.raw;
+        gl.NamedRenderbufferStorageMultisample(
+            renderbuffer.0.get(),
+            samples,
+            internal_format,
+            width,
+            height,
+        )
     }
 
     unsafe fn front_face(&self, value: u32) {
@@ -1941,6 +2075,11 @@ impl HasContext for Context {
         gl.UnmapBuffer(target);
     }
 
+    unsafe fn unmap_named_buffer(&self, buffer: Self::Buffer) {
+        let gl = &self.raw;
+        gl.UnmapNamedBuffer(buffer.0.get());
+    }
+
     unsafe fn cull_face(&self, value: u32) {
         let gl = &self.raw;
         gl.CullFace(value as u32);
@@ -1987,6 +2126,17 @@ impl HasContext for Context {
     ) -> *mut u8 {
         let gl = &self.raw;
         gl.MapBufferRange(target, offset as isize, length as isize, access) as *mut u8
+    }
+
+    unsafe fn map_named_buffer_range(
+        &self,
+        buffer: Self::Buffer,
+        offset: i32,
+        length: i32,
+        access: u32,
+    ) -> *mut u8 {
+        let gl = &self.raw;
+        gl.MapNamedBufferRange(buffer.0.get(), offset as isize, length as isize, access) as *mut u8
     }
 
     unsafe fn flush_mapped_buffer_range(&self, target: u32, offset: i32, length: i32) {
