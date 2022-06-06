@@ -2470,6 +2470,16 @@ impl HasContext for Context {
         gl.VertexAttribDivisor(index, divisor);
     }
 
+    unsafe fn vertex_array_binding_divisor(
+        &self,
+        vao: Self::VertexArray,
+        binding_index: u32,
+        divisor: u32,
+    ) {
+        let gl = &self.raw;
+        gl.VertexArrayBindingDivisor(vao.0.get(), binding_index, divisor)
+    }
+
     unsafe fn vertex_attrib_pointer_f32(
         &self,
         index: u32,

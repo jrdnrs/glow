@@ -1131,6 +1131,13 @@ pub trait HasContext {
 
     unsafe fn vertex_attrib_divisor(&self, index: u32, divisor: u32);
 
+    unsafe fn vertex_array_binding_divisor(
+        &self,
+        vao: Self::VertexArray,
+        binding_index: u32,
+        divisor: u32,
+    );
+
     unsafe fn vertex_attrib_pointer_f32(
         &self,
         index: u32,
