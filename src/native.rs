@@ -2486,7 +2486,7 @@ impl HasContext for Context {
             }
         };
 
-        gl.CompressedTexSubImage3D(
+        gl.CompressedTextureSubImage3D(
             texture.0.get(), level, x_offset, y_offset, z_offset, width, height, depth, format, image_size,
             data,
         );
