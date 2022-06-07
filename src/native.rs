@@ -212,6 +212,13 @@ impl HasContext for Context {
         Ok(NativeRenderbuffer(non_zero_u32_gl_name(name)))
     }
 
+    unsafe fn create_named_renderbuffer(&self) -> Result<Self::Renderbuffer, String> {
+        let gl = &self.raw;
+        let mut name = 0;
+        gl.CreateRenderbuffers(1, &mut name);
+        Ok(NativeRenderbuffer(non_zero_u32_gl_name(name)))
+    }
+
     unsafe fn is_renderbuffer(&self, renderbuffer: Self::Renderbuffer) -> bool {
         let gl = &self.raw;
         gl.IsRenderbuffer(renderbuffer.0.get()) != 0
@@ -552,6 +559,13 @@ impl HasContext for Context {
         let gl = &self.raw;
         let mut vertex_array = 0;
         gl.GenVertexArrays(1, &mut vertex_array);
+        Ok(NativeVertexArray(non_zero_u32_gl_name(vertex_array)))
+    }
+
+    unsafe fn create_named_vertex_array(&self) -> Result<Self::VertexArray, String> {
+        let gl = &self.raw;
+        let mut vertex_array = 0;
+        gl.CreateVertexArrays(1, &mut vertex_array);
         Ok(NativeVertexArray(non_zero_u32_gl_name(vertex_array)))
     }
 

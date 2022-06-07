@@ -112,6 +112,8 @@ pub trait HasContext {
 
     unsafe fn create_renderbuffer(&self) -> Result<Self::Renderbuffer, String>;
 
+    unsafe fn create_named_renderbuffer(&self) -> Result<Self::Renderbuffer, String>;
+
     unsafe fn is_renderbuffer(&self, renderbuffer: Self::Renderbuffer) -> bool;
 
     unsafe fn create_sampler(&self) -> Result<Self::Sampler, String>;
@@ -233,6 +235,8 @@ pub trait HasContext {
     );
 
     unsafe fn create_vertex_array(&self) -> Result<Self::VertexArray, String>;
+
+    unsafe fn create_named_vertex_array(&self) -> Result<Self::VertexArray, String>;
 
     unsafe fn delete_vertex_array(&self, vertex_array: Self::VertexArray);
 
