@@ -747,6 +747,39 @@ impl HasContext for Context {
         gl.ClearBufferfi(target, draw_buffer as i32, depth, stencil);
     }
 
+    unsafe fn clear_named_framebuffer_f32(
+        &self,
+        framebuffer: Self::Framebuffer,
+        buffer: u32,
+        draw_buffer: i32,
+        value: f32,
+    ) {
+        let gl = &self.raw;
+        gl.ClearNamedFramebufferfv(framebuffer.0.get(), buffer, draw_buffer, &value as *const _);
+    }
+
+    unsafe fn clear_named_framebuffer_i32(
+        &self,
+        framebuffer: Self::Framebuffer,
+        buffer: u32,
+        draw_buffer: i32,
+        value: i32,
+    ) {
+        let gl = &self.raw;
+        gl.ClearNamedFramebufferiv(framebuffer.0.get(), buffer, draw_buffer, &value as *const _);
+    }
+
+    unsafe fn clear_named_framebuffer_u32(
+        &self,
+        framebuffer: Self::Framebuffer,
+        buffer: u32,
+        draw_buffer: i32,
+        value: u32,
+    ) {
+        let gl = &self.raw;
+        gl.ClearNamedFramebufferuiv(framebuffer.0.get(), buffer, draw_buffer, &value as *const _);
+    }
+
     unsafe fn client_wait_sync(&self, fence: Self::Fence, flags: u32, timeout: i32) -> u32 {
         let gl = &self.raw;
         gl.ClientWaitSync(fence.0, flags, timeout as u64)
@@ -2508,7 +2541,16 @@ impl HasContext for Context {
         };
 
         gl.CompressedTextureSubImage3D(
-            texture.0.get(), level, x_offset, y_offset, z_offset, width, height, depth, format, image_size,
+            texture.0.get(),
+            level,
+            x_offset,
+            y_offset,
+            z_offset,
+            width,
+            height,
+            depth,
+            format,
+            image_size,
             data,
         );
     }

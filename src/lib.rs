@@ -304,7 +304,32 @@ pub trait HasContext {
         stencil: i32,
     );
 
+    unsafe fn clear_named_framebuffer_f32(
+        &self,
+        framebuffer: Self::Framebuffer,
+        buffer: u32,
+        draw_buffer: i32,
+        value: f32,
+    );
+
+    unsafe fn clear_named_framebuffer_i32(
+        &self,
+        framebuffer: Self::Framebuffer,
+        buffer: u32,
+        draw_buffer: i32,
+        value: i32,
+    );
+
+    unsafe fn clear_named_framebuffer_u32(
+        &self,
+        framebuffer: Self::Framebuffer,
+        buffer: u32,
+        draw_buffer: i32,
+        value: u32,
+    );
+
     unsafe fn client_wait_sync(&self, fence: Self::Fence, flags: u32, timeout: i32) -> u32;
+
     unsafe fn wait_sync(&self, fence: Self::Fence, flags: u32, timeout: u64);
 
     unsafe fn copy_buffer_sub_data(
