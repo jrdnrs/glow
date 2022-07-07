@@ -555,6 +555,68 @@ impl HasContext for Context {
         );
     }
 
+    unsafe fn blit_from_default_framebuffer(
+        &self,
+        draw_framebuffer: Self::Framebuffer,
+        src_x0: i32,
+        src_y0: i32,
+        src_x1: i32,
+        src_y1: i32,
+        dst_x0: i32,
+        dst_y0: i32,
+        dst_x1: i32,
+        dst_y1: i32,
+        mask: u32,
+        filter: u32,
+    ) {
+        let gl = &self.raw;
+        gl.BlitNamedFramebuffer(
+            0,
+            draw_framebuffer.0.get(),
+            src_x0,
+            src_y0,
+            src_x1,
+            src_y1,
+            dst_x0,
+            dst_y0,
+            dst_x1,
+            dst_y1,
+            mask,
+            filter,
+        );
+    }
+
+    unsafe fn blit_to_default_framebuffer(
+        &self,
+        read_framebuffer: Self::Framebuffer,
+        src_x0: i32,
+        src_y0: i32,
+        src_x1: i32,
+        src_y1: i32,
+        dst_x0: i32,
+        dst_y0: i32,
+        dst_x1: i32,
+        dst_y1: i32,
+        mask: u32,
+        filter: u32,
+    ) {
+        let gl = &self.raw;
+        gl.BlitNamedFramebuffer(
+            read_framebuffer.0.get(),
+            0,
+            src_x0,
+            src_y0,
+            src_x1,
+            src_y1,
+            dst_x0,
+            dst_y0,
+            dst_x1,
+            dst_y1,
+            mask,
+            filter,
+        );
+    }
+
     unsafe fn create_vertex_array(&self) -> Result<Self::VertexArray, String> {
         let gl = &self.raw;
         let mut vertex_array = 0;

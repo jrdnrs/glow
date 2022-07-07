@@ -234,6 +234,36 @@ pub trait HasContext {
         filter: u32,
     );
 
+    unsafe fn blit_from_default_framebuffer(
+        &self,
+        draw_framebuffer: Self::Framebuffer,
+        src_x0: i32,
+        src_y0: i32,
+        src_x1: i32,
+        src_y1: i32,
+        dst_x0: i32,
+        dst_y0: i32,
+        dst_x1: i32,
+        dst_y1: i32,
+        mask: u32,
+        filter: u32,
+    );
+
+    unsafe fn blit_to_default_framebuffer(
+        &self,
+        read_framebuffer: Self::Framebuffer,
+        src_x0: i32,
+        src_y0: i32,
+        src_x1: i32,
+        src_y1: i32,
+        dst_x0: i32,
+        dst_y0: i32,
+        dst_x1: i32,
+        dst_y1: i32,
+        mask: u32,
+        filter: u32,
+    );
+
     unsafe fn create_vertex_array(&self) -> Result<Self::VertexArray, String>;
 
     unsafe fn create_named_vertex_array(&self) -> Result<Self::VertexArray, String>;
